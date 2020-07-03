@@ -1,3 +1,5 @@
+# ported from https://github.com/vadimg/js_bintrees/blob/master/lib/rbtree.js
+
 class TreeBase:
     def iterator(self):
         return Iterator(self)
