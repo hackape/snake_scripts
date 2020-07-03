@@ -173,7 +173,7 @@ class Iterator:
         return self.data()
 
 
-class Node:
+class TreeNode:
     def __init__(self, data):
         self.data = data
         self.left = None
@@ -190,6 +190,73 @@ class Node:
             self.left = val
 
 
+class BinTree(TreeBase):
+    def __init__(self, comparator):
+        self._root = None
+        self._comparator = comparator
+        self.size = 0
+
+    def insert(self, data):
+        # empty tree
+        if self._root is None:
+            self._root = TreeNode(data)
+            self.size += 1
+            return True
+
+        dir = False
+        p = None
+        node = self._root
+
+        # search down
+        while True:
+            if node is None:
+                node = TreeNode(data)
+                p.set_child(dir, node)
+                self.size += 1
+                return True
+
+            # node already exist in tree
+            if self._comparator(node.data, data) == 0:
+                return False
+
+            dir = self._comparator(node.data, data) < 0
+            p = node
+            node = node.get_child(dir)
+
+    def remove(self, data):
+        if self._root is None:
+            return False
+
+        # fake tree root
+        head = TreeNode(None)
+        node = head
+
+        # search direction, go right first
+        dir = True
+        node.right = self._root
+
+        p = None
+        found = None
+        while (node.get_child(dir) is not None):
+            p = node
+            node = node.get_child(dir)
+            cmp = self._comparator(data, node.data)
+            dir = cmp > 0
+
+            if cmp == 0:
+                found = node
+
+        if found is not None:
+            found.data = node.data
+            p.set_child(p.right is node, node.get_child(node.left is None))
+
+            self._root = head.right
+            self.size -= 1
+            return True
+        else:
+            return False
+
+
 class RBTree(TreeBase):
     def __init__(self, comparator):
         self._root = None
@@ -201,11 +268,11 @@ class RBTree(TreeBase):
 
         # empty tree
         if self._root is None:
-            self._root = Node(data)
+            self._root = TreeNode(data)
             success = True
             self.size += 1
         else:
-            head = Node(None)
+            head = TreeNode(None)
 
             dir = False
             lastDir = dir
@@ -222,7 +289,7 @@ class RBTree(TreeBase):
 
             while True:
                 if node is None:
-                    node = Node(data)
+                    node = TreeNode(data)
                     p.set_child(dir, node)
                     success = True
                     self.size += 1
@@ -263,7 +330,7 @@ class RBTree(TreeBase):
         if self._root is None:
             return False
 
-        head = Node(None)
+        head = TreeNode(None)
         node = head
         node.right = self._root
 
